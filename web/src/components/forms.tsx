@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { PEOPLE, personName } from "@/lib/seed";
+import { PEOPLE } from "@/lib/seed";
 import { TRIP_END, TRIP_START } from "@/lib/trip";
 import type { Country, MoveKind, PersonId } from "@/lib/types";
+import { RoomBoard } from "./RoomBoard";
 import type { AppApi } from "./TripApp";
 import { Button, Field, Icon, inputCls, Picker, Row, Section, Segmented, Sheet, Switch } from "./ui";
 
@@ -149,7 +150,6 @@ export function RoomsSheet({ api, stopId, onClose }: { api: AppApi; stopId: stri
   const before = JSON.stringify([stop.people, stop.rooms, stop.people.map((p) => stop.roomOf?.[p] ?? 0)]);
   const after = JSON.stringify([people, rooms, people.map((p) => roomOf[p] ?? 0)]);
   const save = async () => { if (await api.run({ op: "setRooms", stopId, people, rooms, roomOf, by })) onClose(); };
-  const roomOptions: [string, string][] = [...Array.from({ length: rooms }, (_, i) => [String(i + 1), `חדר ${i + 1}`] as [string, string]), ["0", "בלי חדר"]];
 
   return (
     <FormSheet title={`חדרים ב${stop.name}`} onClose={onClose} onSave={save} canSave={people.length > 0 && before !== after} busy={api.busy}>
@@ -171,16 +171,19 @@ export function RoomsSheet({ api, stopId, onClose }: { api: AppApi; stopId: stri
         </Row>
       </Section>
 
-      <Section title="מי ישן איפה" action={people.length > 1 ? <button type="button" onClick={auto} className="min-h-9 px-1 text-[15px] font-semibold text-tint">חלוקה אוטומטית</button> : undefined}
-        footer={`Booking יחפש ${people.length} ${people.length === 1 ? "אדם" : "אנשים"} ב־${rooms === 1 ? "חדר אחד" : `${rooms} חדרים`}. שינוי במספר האנשים או החדרים מחכה לבדיקה של קלוד, כי המחירים משתנים.`}>
-        {people.length === 0 && <Row><span className="text-[15px] text-label2">סמנו למעלה מי מגיע.</span></Row>}
-        {people.map((p) => (
-          <Row key={p} trailing={
-            <Picker label={`החדר של ${personName(p)}`} value={String(roomOf[p] ?? 0)} options={roomOptions}
-              onChange={(v) => setRoomOf((m) => { const n = { ...m }; if (v === "0") delete n[p]; else n[p] = Number(v); return n; })} />
-          }>{personName(p)}</Row>
-        ))}
-      </Section>
+      <div className="flex items-end justify-between px-4 pb-3">
+        <h2 className="text-[20px] font-bold">מי ישן איפה</h2>
+        {people.length > 1 && <button type="button" onClick={auto} className="min-h-9 px-1 text-[15px] font-semibold text-tint">חלוקה אוטומטית</button>}
+      </div>
+      {people.length === 0 ? (
+        <p className="mb-8 px-4 text-[15px] text-label2">סמנו למעלה מי מגיע.</p>
+      ) : (
+        <RoomBoard people={people} rooms={rooms} roomOf={roomOf}
+          onMove={(p, r) => setRoomOf((m) => { const n = { ...m }; if (r === 0) delete n[p]; else n[p] = r; return n; })} />
+      )}
+      <p className="-mt-3 mb-8 px-4 text-[13px] leading-[18px] text-label2">
+        גוררים מהפס שבצד, או מקישים על שם ובוחרים חדר. Booking יחפש {people.length} {people.length === 1 ? "אדם" : "אנשים"} ב־{rooms === 1 ? "חדר אחד" : `${rooms} חדרים`}. שינוי במספר האנשים או החדרים מחכה לבדיקה של קלוד, כי המחירים משתנים.
+      </p>
       <Author value={by} onChange={setBy} />
     </FormSheet>
   );

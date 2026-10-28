@@ -97,7 +97,7 @@ export function TripApp({ initial }: { initial: TripState }) {
 
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2400);
+    const t = setTimeout(() => setToast(null), toast === "נשמר" ? 2000 : 5000); // errors stay long enough to read
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -203,7 +203,9 @@ export function TripApp({ initial }: { initial: TripState }) {
       {toast && (
         <div role="status" aria-live="polite" className="fade-enter pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+86px)] z-[60] flex justify-center">
           <span className="glass flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[15px] font-semibold">
-            {toast === "נשמר" && <Icon name="check" size={17} weight={2.6} className="text-green" />}
+            {toast === "נשמר"
+              ? <Icon name="check" size={17} weight={2.6} className="text-green" />
+              : <Icon name="info" size={18} weight={2.2} className="text-red" />}
             {toast}
           </span>
         </div>

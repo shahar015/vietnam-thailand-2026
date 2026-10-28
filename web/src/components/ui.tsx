@@ -109,7 +109,7 @@ export function GlassButton({ icon, label, onClick, tint = false, disabled = fal
 }) {
   return (
     <button type="button" onClick={onClick} aria-label={label} disabled={disabled}
-      className={`press-glass flex size-11 items-center justify-center rounded-full disabled:opacity-35 ${tint ? "bg-tint text-white shadow-[0_6px_16px_rgb(0_102_204/0.3)]" : "glass text-label"}`}>
+      className={`press-glass flex size-11 items-center justify-center rounded-full disabled:opacity-35 aria-[label=שומר]:opacity-100 ${tint ? "bg-tint text-white shadow-[0_6px_16px_rgb(0_102_204/0.3)]" : "glass text-label"}`}>
       {children ?? <Icon name={icon!} size={21} weight={2.1} />}
     </button>
   );
@@ -269,7 +269,9 @@ export function Sheet({ onClose, title, children, done, height = "large" }: {
             <div className="justify-self-end">
               {done && (
                 <GlassButton tint label={done.busy ? "שומר" : done.label} onClick={done.onClick} disabled={done.disabled || done.busy}>
-                  <Icon name="check" size={22} weight={2.6} />
+                  {done.busy
+                    ? <span className="size-5 animate-spin rounded-full border-[2.5px] border-white/40 border-t-white" aria-hidden />
+                    : <Icon name="check" size={22} weight={2.6} />}
                 </GlassButton>
               )}
             </div>

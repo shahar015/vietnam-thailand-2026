@@ -15,7 +15,8 @@ async function read(): Promise<{ state: TripState; etag?: string }> {
   const res = await get(PATH, { access: "private", useCache: false });
   if (!res || res.statusCode !== 200) return { state: SEED };
   const text = await new Response(res.stream).text();
-  return { state: JSON.parse(text) as TripState, etag: res.blob.etag };
+  // get() reports a weak ETag (W/"…"); put's ifMatch only matches the strong form.
+  return { state: JSON.parse(text) as TripState, etag: res.blob.etag?.replace(/^W\//, "") };
 }
 
 export async function loadState(): Promise<TripState> {
@@ -43,5 +44,5 @@ export async function commit(req: OpRequest, opts: { admin?: boolean } = {}): Pr
       throw e;
     }
   }
-  throw new Error("busy");
+  throw new Error("busy: the state changed on every one of 6 attempts");
 }
