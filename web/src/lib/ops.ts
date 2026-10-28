@@ -31,8 +31,24 @@ export function applyOp(prev: TripState, req: OpRequest, opts: { admin?: boolean
         ll: req.ll, addedBy: by, needsResearch: true,
       };
       s.hotels.push(h);
-      if (req.makePick) st.pickId = h.id;
-      log(`הוסיף/ה את ${name} ב${st.name}${req.makePick ? " והגדיר/ה כהמלצה" : ""}`, { kind: "hotel", id: h.id });
+      if (req.makePick || req.booked) st.pickId = h.id;
+      if (req.booked) st.bookedId = h.id;
+      log(`הוסיף/ה את ${name} ב${st.name}${req.booked ? " וסימן/ה שהזמנו אותו" : req.makePick ? " והגדיר/ה כהמלצה" : ""}`, { kind: "hotel", id: h.id });
+      break;
+    }
+    case "setBooked": {
+      const st = stop(req.stopId);
+      if (req.hotelId) {
+        const h = hotel(req.hotelId);
+        if (h.stopId !== st.id) fail("המלון לא שייך לעצירה הזו");
+        st.bookedId = h.id;
+        st.pickId = h.id;
+        log(`סימן/ה שהזמנו את ${h.name} ב${st.name}`, { kind: "stop", id: st.id });
+      } else {
+        const was = st.bookedId && s.hotels.find((x) => x.id === st.bookedId)?.name;
+        st.bookedId = undefined;
+        log(`ביטל/ה את הסימון שהזמנו${was ? ` את ${was}` : ""} ב${st.name}`, { kind: "stop", id: st.id });
+      }
       break;
     }
     case "editHotel": {
@@ -49,6 +65,7 @@ export function applyOp(prev: TripState, req: OpRequest, opts: { admin?: boolean
       h.hidden = true;
       const st = stop(h.stopId);
       if (st.pickId === h.id) st.pickId = undefined;
+      if (st.bookedId === h.id) st.bookedId = undefined;
       log(`הסיר/ה את ${h.name}`, { kind: "hotel", id: h.id });
       break;
     }

@@ -98,12 +98,11 @@ select {
   direction: ltr;
   unicode-bidi: isolate;
 }
-.hair {
-  border-color: var(--sep);
-  border-width: 0;
-}
-.hair-b {
-  border-bottom: 0.5px solid var(--sep);
+/* Layered so utilities (like the last row's border-b-0) can override it. */
+@layer components {
+  .hair-b {
+    border-bottom: 0.5px solid var(--sep);
+  }
 }
 
 /* Functional layer only: tab bar, nav buttons, sheets. */

@@ -31,6 +31,7 @@ Key files: `lib/types.ts` (data model and ops), `lib/score.ts` (our score), `lib
 - `Stop.people` = who comes; `Stop.rooms` and `Stop.roomOf` = who sleeps where. Booking links search `people.length` adults in `rooms` rooms.
 - `Stop.adults` = the headcount the prices were researched for. Per-person price is `priceTotal / nights / adults`. After re-researching prices for a new group, set `adults = people.length`.
 - `Hotel.priceTotal` is USD for the whole stay, for that stop's group and room count.
+- `Stop.bookedId` = the hotel we actually booked (op `setBooked`, or `addHotel` with `booked: true`); it wins over `pickId` everywhere. A booked hotel a friend added still waits for Claude, who should fill in its details but never change the booking.
 - Never delete; set `hidden: true`. Keep `addedBy` forever: the purple "הצעה של X" mark must stay after research.
 - Pick rule: the highest normalized score wins, unless another hotel is within 0.25 of it and costs 60% or less. Then the cheaper one wins on value. `Stop.why` explains the pick in Hebrew. A friend can set a pick themselves; respect it unless asked.
 
@@ -86,7 +87,7 @@ pnpm --dir web start -p 3100
 ```
 
 - Check `npx tsc --noEmit` and `npx eslint src` in `web/`. Verify UI at 390×844 in a browser before pushing.
-- Anything with gestures (dragging people between rooms, sheet swipe-to-dismiss) must be tested with **touch** input, not a mouse: a Playwright context with `hasTouch: true, isMobile: true` and CDP `Input.dispatchTouchEvent`. A mouse test once passed while real phones scrolled and cancelled the drag. Global `touch-action` rules live in `@layer base` so `touch-none` on grips wins.
+- Anything with gestures (dragging people between rooms, sheet swipe-to-dismiss) must be tested with **touch** input, not a mouse: a Playwright context with `hasTouch: true, isMobile: true` and CDP `Input.dispatchTouchEvent`. A mouse test once passed while real phones scrolled and cancelled the drag. Custom CSS classes go in a layer (`@layer base`/`components`): unlayered rules beat every Tailwind utility. That broke the grips' `touch-none` and the last row's `border-b-0`.
 - Saving: Blob `get()` returns a weak ETag (`W/"…"`); strip `W/` before `put(..., { ifMatch })` or every write after the first fails as a conflict.
 - Next 16 with `cacheComponents`: no `export const dynamic`; read request data under `await connection()` inside `<Suspense>`.
 - Per-phone settings use `useSyncExternalStore` over localStorage, not `setState` in an effect (lint forbids that).

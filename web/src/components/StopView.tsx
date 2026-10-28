@@ -51,23 +51,19 @@ export function StopView({ api, stopId, onBack }: { api: AppApi; stopId: string;
           </Section>
         )}
 
-        {!stop.lodgingNote && (
-          <>
-            {others.length > 0 && (
-              <Tip id="add-hotel" title="מצאתם מלון אחר?">
-                הוסיפו אותו בסוף הרשימה. אפשר לבחור אותו כהמלצה מיד, וקלוד יבדוק אותו ויוסיף ציון, יתרונות וחסרונות.
-              </Tip>
-            )}
-            <Section title={stop.bookedId ? "אפשרויות שנבדקו" : "חלופות"}
-              footer={others.length > 0 ? "הציון הגדול הוא הציון שלנו: הדירוג ב־Booking, מתוקן לפי כמות הביקורות, כוכבים, איכות הדף, סוג המקום ומיקום." : undefined}>
-              {others.map((h) => <HotelLine key={h.id} api={api} stop={stop} hotel={h} />)}
-              <Row onClick={() => api.open({ kind: "addHotel", stopId: stop.id })} chevron={false} tone="tint"
-                leading={<Icon name="plus" size={22} weight={2.2} className="text-tint" />}>
-                הצעת מלון
-              </Row>
-            </Section>
-          </>
+        {others.length > 0 && (
+          <Tip id="add-hotel" title="מצאתם מלון אחר?">
+            הוסיפו אותו בסוף הרשימה. אפשר לבחור אותו כהמלצה מיד, וקלוד יבדוק אותו ויוסיף ציון, יתרונות וחסרונות.
+          </Tip>
         )}
+        <Section title={stop.bookedId ? "אפשרויות שנבדקו" : stop.lodgingNote ? "מלון משלנו" : "חלופות"}
+          footer={others.length > 0 ? "הציון הגדול הוא הציון שלנו: הדירוג ב־Booking, מתוקן לפי כמות הביקורות, כוכבים, איכות הדף, סוג המקום ומיקום." : undefined}>
+          {others.map((h) => <HotelLine key={h.id} api={api} stop={stop} hotel={h} />)}
+          <Row onClick={() => api.open({ kind: "addHotel", stopId: stop.id })} chevron={false} tone="tint"
+            leading={<Icon name="plus" size={22} weight={2.2} className="text-tint" />}>
+            {stop.lodgingNote && !pick ? "הוספת מלון שהזמנו או מציעים" : "הצעת מלון"}
+          </Row>
+        </Section>
 
         {stop.rides && (
           <Section title="מוניות ואפליקציות">

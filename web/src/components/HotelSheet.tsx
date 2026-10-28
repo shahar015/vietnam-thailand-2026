@@ -51,6 +51,18 @@ export function HotelSheet({ api, id, onClose }: { api: AppApi; id: string; onCl
         </div>
       </Section>
 
+      <Section footer={stop.bookedId && stop.bookedId !== h.id
+        ? `כרגע מסומן שהזמנו את ${api.state.hotels.find((x) => x.id === stop.bookedId)?.name ?? "מלון אחר"}. הסימון יעבור למלון הזה.`
+        : stop.bookedId === h.id ? undefined : "אחרי שמזמינים, מסמנים כאן כדי שכולם ידעו."}>
+        {stop.bookedId === h.id ? (
+          <Row onClick={() => api.run({ op: "setBooked", stopId: stop.id, hotelId: null })} chevron={false} tone="red"
+            leading={<Icon name="xmark" size={20} weight={2.4} className="text-red" />}>ביטול הסימון שהזמנו</Row>
+        ) : (
+          <Row onClick={async () => { if (await api.run({ op: "setBooked", stopId: stop.id, hotelId: h.id })) onClose(); }} chevron={false} tone="tint"
+            leading={<Icon name="check" size={20} weight={2.6} className="text-green" />}>הזמנו את המלון הזה</Row>
+        )}
+      </Section>
+
       {h.needsResearch && (
         <Section>
           <Row leading={<Icon name="sparkle" size={22} className="text-orange" />}>

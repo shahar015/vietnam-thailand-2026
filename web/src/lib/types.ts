@@ -110,7 +110,8 @@ export type TripState = {
 
 export type Op =
   | { op: "setPick"; stopId: string; hotelId: string }
-  | { op: "addHotel"; stopId: string; name: string; url?: string; note?: string; ll?: [number, number]; makePick?: boolean }
+  | { op: "addHotel"; stopId: string; name: string; url?: string; note?: string; ll?: [number, number]; makePick?: boolean; booked?: boolean }
+  | { op: "setBooked"; stopId: string; hotelId: string | null }
   | { op: "editHotel"; hotelId: string; name?: string; url?: string; note?: string }
   | { op: "hideHotel"; hotelId: string }
   | { op: "editStop"; stopId: string; from?: string; to?: string; name?: string }

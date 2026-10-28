@@ -43,6 +43,8 @@ export function AddHotelSheet({ api, stopId, onClose }: { api: AppApi; stopId: s
   const [note, setNote] = useState("");
   const [ll, setLl] = useState<[number, number] | undefined>();
   const [makePick, setMakePick] = useState(false);
+  const [booked, setBooked] = useState(false);
+  const bookedName = stop.bookedId && api.state.hotels.find((h) => h.id === stop.bookedId)?.name;
   const [by, setBy] = useState<PersonId | null>(api.me);
   const [results, setResults] = useState<Place[]>([]);
   const [searching, setSearching] = useState(false);
@@ -79,7 +81,7 @@ export function AddHotelSheet({ api, stopId, onClose }: { api: AppApi; stopId: s
     if (n && !name) { chosen.current = true; setName(n); }
   };
   const save = async () => {
-    if (await api.run({ op: "addHotel", stopId, name, url: url || undefined, note: note || undefined, ll, makePick, by })) onClose();
+    if (await api.run({ op: "addHotel", stopId, name, url: url || undefined, note: note || undefined, ll, makePick: makePick || booked, booked, by })) onClose();
   };
 
   return (
@@ -109,8 +111,11 @@ export function AddHotelSheet({ api, stopId, onClose }: { api: AppApi; stopId: s
           <input className={inputCls} value={note} placeholder="לא חובה" onChange={(e) => setNote(e.target.value)} />
         </Field>
       </Section>
-      <Section footer="אפשר לבחור אותו כהמלצה כבר עכשיו. הוא יסומן ״קלוד עוד לא בדק״ עד שקלוד יבדוק אותו.">
-        <Row trailing={<Switch checked={makePick} onChange={setMakePick} label="לבחור כהמלצה" />}>לבחור כהמלצה</Row>
+      <Section footer={booked
+        ? `הוא יופיע כ״הוזמן״ ב${stop.name}${bookedName ? ` במקום ${bookedName}` : ""}. קלוד יוסיף עליו פרטים בבדיקה הבאה.`
+        : "אפשר לבחור אותו כהמלצה כבר עכשיו. הוא יסומן ״קלוד עוד לא בדק״ עד שקלוד יבדוק אותו."}>
+        <Row trailing={<Switch checked={booked} onChange={setBooked} label="כבר הזמנו אותו" />}>כבר הזמנו אותו</Row>
+        {!booked && <Row trailing={<Switch checked={makePick} onChange={setMakePick} label="לבחור כהמלצה" />}>לבחור כהמלצה</Row>}
       </Section>
       <Author value={by} onChange={setBy} />
     </FormSheet>
