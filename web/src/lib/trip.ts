@@ -1,5 +1,5 @@
 import { normalize } from "./score";
-import type { Hotel, Move, Stop, TripState } from "./types";
+import type { Hotel, Move, PersonId, Stop, TripState } from "./types";
 
 export const TRIP_START = "2026-11-02";
 export const TRIP_END = "2026-11-30";
@@ -39,6 +39,21 @@ export function hotelsOf(t: TripState, stopId: string): Hotel[] {
 export const scoreOf = (h: Hotel) => (h.booking ? normalize(h.booking).score : undefined);
 export const pickOf = (t: TripState, st: Stop) => t.hotels.find((h) => h.id === (st.bookedId ?? st.pickId) && !h.hidden);
 
+export const headcount = (st: Stop) => st.people.length || st.adults;
+
+/** Rooms in order, each with the people assigned to it, plus whoever isn't assigned yet. */
+export function roomsOf(st: Stop): { rooms: PersonId[][]; unassigned: PersonId[] } {
+  const rooms: PersonId[][] = Array.from({ length: Math.max(1, st.rooms) }, () => []);
+  const unassigned: PersonId[] = [];
+  for (const p of st.people) {
+    const r = st.roomOf?.[p];
+    if (r && r <= rooms.length) rooms[r - 1].push(p);
+    else unassigned.push(p);
+  }
+  return { rooms, unassigned };
+}
+
+/** Per person, split by the headcount the price was researched for (`adults`), not today's list. */
 export const perNight = (h: Hotel, st: Stop) =>
   h.priceTotal ? h.priceTotal / Math.max(1, nights(st)) / Math.max(1, st.adults) : undefined;
 
@@ -46,7 +61,7 @@ export function bookingUrl(h: Hotel, st: Stop) {
   if (h.url) return h.url;
   if (!h.slug) return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(h.name)}`;
   const q = new URLSearchParams({
-    checkin: st.from, checkout: st.to, group_adults: String(st.adults), no_rooms: String(st.rooms),
+    checkin: st.from, checkout: st.to, group_adults: String(headcount(st)), no_rooms: String(st.rooms),
     group_children: "0", selected_currency: "USD",
   });
   return `https://www.booking.com/hotel/${h.slug}.html?${q}`;
@@ -86,6 +101,21 @@ export const peopleOn = (t: TripState, date: string) => {
   const prev = visibleStops(t).filter((s) => s.to <= date).at(-1);
   return prev?.people ?? [];
 };
+
+/** The device's date, as an ISO day. Client-only. */
+export const todayISO = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+/** How we get from each stop to the next: a flight or a boat on the changeover day wins over the road. */
+export function legs(t: TripState): { from: Stop; to: Stop; mode: "flight" | "boat" | "road" }[] {
+  const st = visibleStops(t).filter((s) => s.center);
+  return st.slice(1).map((to, i) => {
+    const kinds = movesOn(t, to.from).map((m) => m.kind);
+    return { from: st[i], to, mode: kinds.includes("flight") ? "flight" : kinds.includes("boat") ? "boat" : "road" };
+  });
+}
 
 export const researchQueue = (t: TripState) => ({
   stops: t.stops.filter((s) => s.needsResearch && !s.hidden),

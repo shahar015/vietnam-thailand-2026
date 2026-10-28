@@ -53,8 +53,11 @@ export type Stop = {
   from: string;
   to: string;
   people: PersonId[];
+  /** Headcount the prices were researched for. Booking searches use `people.length`. */
   adults: number;
   rooms: number;
+  /** Who sleeps in which room, 1-based. People missing here aren't assigned yet. */
+  roomOf?: Partial<Record<PersonId, number>>;
   center?: { name: string; ll: [number, number] };
   area?: string;
   why?: string;
@@ -109,6 +112,7 @@ export type Op =
   | { op: "editHotel"; hotelId: string; name?: string; url?: string; note?: string }
   | { op: "hideHotel"; hotelId: string }
   | { op: "editStop"; stopId: string; from?: string; to?: string; name?: string }
+  | { op: "setRooms"; stopId: string; people: PersonId[]; rooms: number; roomOf: Partial<Record<PersonId, number>> }
   | { op: "addStop"; name: string; country: Country; from: string; to: string; people: PersonId[] }
   | { op: "hideStop"; stopId: string }
   | { op: "addMove"; date: string; time?: string; kind: MoveKind; title: string; detail?: string }

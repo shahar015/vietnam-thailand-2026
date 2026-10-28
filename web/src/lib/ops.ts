@@ -63,12 +63,31 @@ export function applyOp(prev: TripState, req: OpRequest, opts: { admin?: boolean
       log(`שינה/תה את ${st.name}: ${before} ← ${st.from}–${st.to}`, { kind: "stop", id: st.id });
       break;
     }
+    case "setRooms": {
+      const st = stop(req.stopId);
+      const rooms = Math.max(1, Math.min(8, Math.round(req.rooms)));
+      const people = [...new Set(req.people)];
+      const roomOf: Stop["roomOf"] = {};
+      for (const p of people) {
+        const r = req.roomOf[p];
+        if (r && r >= 1 && r <= rooms) roomOf[p] = r;
+      }
+      // A different headcount or room count changes prices and availability.
+      const recheck = people.length !== st.people.length || rooms !== st.rooms;
+      // `adults` stays the headcount prices were researched for, until Claude rechecks.
+      st.people = people;
+      st.rooms = rooms;
+      st.roomOf = roomOf;
+      if (recheck) st.needsResearch = true;
+      log(`עדכן/ה את החדרים ב${st.name}: ${people.length} אנשים ב־${rooms} ${rooms === 1 ? "חדר" : "חדרים"}`, { kind: "stop", id: st.id });
+      break;
+    }
     case "addStop": {
       if (!req.name.trim()) fail("חסר שם");
       if (req.from >= req.to) fail("תאריך היציאה צריך להיות אחרי תאריך ההגעה");
       const st: Stop = {
         id: uid("s"), name: req.name.trim(), country: req.country, from: req.from, to: req.to,
-        people: req.people, adults: req.people.length || 2, rooms: Math.max(1, Math.ceil((req.people.length || 2) / 2)),
+        people: req.people, adults: req.people.length, rooms: Math.max(1, Math.ceil(req.people.length / 2)),
         addedBy: by, needsResearch: true,
       };
       s.stops.push(st);

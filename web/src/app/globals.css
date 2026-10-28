@@ -1,82 +1,58 @@
 @import "tailwindcss";
 
 /*
-  Grouped-list app in the iOS idiom, right to left.
-  Surfaces: grouped background + cells. One action color (lagoon), two country tints in content only,
-  saffron reserved for the moon. Orange = needs research, violet = a friend's suggestion.
+  iOS 26 idiom, right to left, light appearance only (the group asked for it).
+  Content layer: grouped background, white inset lists, no glass.
+  Functional layer: tab bar, nav buttons, sheets, which are the only glass.
+  Colors are Apple's increased-contrast system colors so small text passes 4.5:1 on white.
+  One meaning per color: blue acts, green is booked, orange waits for Claude, purple is a friend's idea.
+  The route map is the one loud thing; the moon appears only in the calendar.
 */
 :root {
   --bg: #f2f2f7;
   --cell: #ffffff;
-  --fill: #ececf1;
-  --label: #0b0b0d;
-  --label2: #5c5c64; /* 6.0:1 on cell, 5.5:1 on bg */
-  --label3: #75757d; /* 4.6:1 on cell */
-  --sep: #dcdce2;
-  --accent: #0b6b75; /* 6.1:1 on white */
-  --accent-fill: #e1f1f2;
-  --vn: #1d7449;
-  --th: #2a57bd;
-  --moon: #b07600;
-  --moon-glow: #f4c24d;
-  --warn: #a64f00; /* 5.6:1 on its fill */
-  --warn-fill: #fff0de;
-  --mine: #6b35a3;
-  --mine-fill: #f2e9fb;
-  --ok: #1b7333;
-  --ok-fill: #e3f4e6;
-  --scrim: rgb(0 0 0 / 0.35);
-  --bar: rgb(249 249 251 / 0.78);
+  --fill: rgb(118 118 128 / 0.12);
+  --fill-2: rgb(118 118 128 / 0.2);
+  --pressed: #e5e5ea;
+  --label: #000000;
+  --label2: #6c6c70; /* 5.0:1 on white, 4.6:1 on bg */
+  --label3: #8e8e93; /* glyphs and placeholders only */
+  --sep: rgb(60 60 67 / 0.29);
+  --tint: #0066cc; /* 5.6:1 */
+  --tint-fill: rgb(0 102 204 / 0.1);
+  --green: #248a3d; /* 4.6:1 */
+  --orange: #c93400; /* 5.0:1 */
+  --purple: #8944ab; /* 6.1:1 */
+  --red: #d70015; /* 5.4:1 */
+  --switch: #34c759;
+  --moon: #f5b800;
+  --moon-glow: #ffd84d;
+  --sea: #d3e6f5;
+  --land: #ffffff;
+  --land-2: #e8e6e0;
+  --border: #bdb9af;
+  --scrim: rgb(0 0 0 / 0.4);
+  --glass: rgb(255 255 255 / 0.72);
+  --glass-edge: rgb(255 255 255 / 0.9);
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --cell: #1c1c1e;
-    --fill: #2c2c2e;
-    --label: #f5f5f7;
-    --label2: #a7a7af;
-    --label3: #8c8c94;
-    --sep: #38383a;
-    --accent: #5cc8d3;
-    --accent-fill: #12373b;
-    --vn: #58c793;
-    --th: #8aaaf7;
-    --moon: #f2c14e;
-    --moon-glow: #f7d36f;
-    --warn: #ffb766;
-    --warn-fill: #3a2610;
-    --mine: #cfa6f5;
-    --mine-fill: #2d1f3d;
-    --ok: #66d384;
-    --ok-fill: #12301b;
-    --scrim: rgb(0 0 0 / 0.55);
-    --bar: rgb(28 28 30 / 0.78);
-    color-scheme: dark;
-  }
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-cell: var(--cell);
   --color-fill: var(--fill);
+  --color-fill-2: var(--fill-2);
   --color-label: var(--label);
   --color-label2: var(--label2);
   --color-label3: var(--label3);
   --color-sep: var(--sep);
-  --color-accent: var(--accent);
-  --color-accent-fill: var(--accent-fill);
-  --color-vn: var(--vn);
-  --color-th: var(--th);
-  --color-moon: var(--moon);
-  --color-warn: var(--warn);
-  --color-warn-fill: var(--warn-fill);
-  --color-mine: var(--mine);
-  --color-mine-fill: var(--mine-fill);
-  --color-ok: var(--ok);
-  --color-ok-fill: var(--ok-fill);
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Hebrew", "Segoe UI", "Assistant", "Arial Hebrew", system-ui, sans-serif;
-  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --color-tint: var(--tint);
+  --color-tint-fill: var(--tint-fill);
+  --color-green: var(--green);
+  --color-orange: var(--orange);
+  --color-purple: var(--purple);
+  --color-red: var(--red);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Hebrew", "Segoe UI", Roboto, "Noto Sans Hebrew", Arial, sans-serif;
 }
 
 html {
@@ -88,13 +64,29 @@ body {
   color: var(--label);
   font-family: var(--font-sans);
   font-size: 17px;
-  line-height: 1.35;
+  line-height: 1.29;
+  letter-spacing: -0.01em;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
+button,
+a,
+select,
+label {
+  touch-action: manipulation;
+}
+button:not(:disabled),
+a,
+select {
+  cursor: pointer;
+}
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--tint);
   outline-offset: 2px;
+}
+/* Containers that take focus programmatically (sheets) don't draw a ring. */
+[tabindex="-1"]:focus {
+  outline: none;
 }
 .tabular {
   font-variant-numeric: tabular-nums;
@@ -103,30 +95,68 @@ body {
   direction: ltr;
   unicode-bidi: isolate;
 }
-.glass {
-  background: var(--bar);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+.hair {
+  border-color: var(--sep);
+  border-width: 0;
 }
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
+.hair-b {
+  border-bottom: 0.5px solid var(--sep);
+}
+
+/* Functional layer only: tab bar, nav buttons, sheets. */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow:
+    inset 0 0 0 0.5px var(--glass-edge),
+    0 0 0 0.5px rgb(0 0 0 / 0.06),
+    0 8px 24px rgb(0 0 0 / 0.1);
+}
+/* Where content meets the top bar: blur and fade instead of a solid strip. */
+.edge-top {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  background: linear-gradient(to bottom, rgb(242 242 247 / 0.85), rgb(242 242 247 / 0));
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .glass,
+  .edge-top {
     background: var(--cell);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .glass {
+    box-shadow: 0 0 0 1px var(--sep);
   }
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   scrollbar-width: none;
 }
+
+/* Cell highlight: on at once, fades out, like a table view. */
 .press {
-  transition: background-color 0.12s;
+  transition: background-color 0.35s;
 }
 .press:active {
-  background-color: var(--fill);
+  background-color: var(--pressed);
+  transition: none;
 }
+.press-glass {
+  transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.press-glass:active {
+  transform: scale(0.92);
+}
+
 @keyframes sheet-in {
   from {
     transform: translateY(100%);
@@ -137,11 +167,29 @@ body {
     opacity: 0;
   }
 }
+@keyframes push-in {
+  from {
+    transform: translateX(-28%);
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   .sheet-enter {
-    animation: sheet-in 0.32s cubic-bezier(0.2, 0.9, 0.25, 1);
+    animation: sheet-in 0.42s cubic-bezier(0.32, 0.72, 0, 1);
   }
   .fade-enter {
-    animation: fade-in 0.2s ease-out;
+    animation: fade-in 0.25s ease-out;
+  }
+  .push-enter {
+    animation: push-in 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .pop-enter {
+    animation: pop-in 0.3s cubic-bezier(0.3, 1.3, 0.5, 1);
   }
 }

@@ -14,6 +14,9 @@ export const personName = (id?: PersonId | null) => PEOPLE.find((p) => p.id === 
 const VN: PersonId[] = ["shahar", "adi", "roni", "yahel", "ofir", "lauren"];
 const DUO: PersonId[] = ["shahar", "adi"];
 const TRIO: PersonId[] = ["shahar", "adi", "shir"];
+/** A starting split the group can change in the app. */
+const VN_ROOMS = { shahar: 1, adi: 1, roni: 2, yahel: 2, ofir: 3, lauren: 3 };
+const ONE_ROOM = { shahar: 1, adi: 1, shir: 1 };
 
 /** Subscores come in Booking's page order: location, cleanliness, value, facilities, comfort, staff. */
 function bf(score: number, reviews: number, stars: number | null, photos: number, type: string, s: number[], squares = false): BookingFacts {
@@ -27,38 +30,40 @@ function bf(score: number, reviews: number, stars: number | null, photos: number
 const ll = (s: string) => s.split(",").map(Number) as [number, number];
 
 const stops: Stop[] = [
-  { id: "han1", name: "האנוי", country: "vn", from: "2026-11-02", to: "2026-11-03", people: VN, adults: 6, rooms: 3,
+  { id: "han1", name: "האנוי", country: "vn", from: "2026-11-02", to: "2026-11-03", people: VN, adults: 6, rooms: 3, roomOf: VN_ROOMS,
     center: { name: "אגם הואן קיים", ll: [21.0288313, 105.8525357] }, area: "העיר העתיקה", bookedId: "golden-lotus", pickId: "golden-lotus" },
-  { id: "sapa", name: "סאפה", country: "vn", from: "2026-11-03", to: "2026-11-06", people: VN, adults: 6, rooms: 3,
+  { id: "sapa", name: "סאפה", country: "vn", from: "2026-11-03", to: "2026-11-06", people: VN, adults: 6, rooms: 3, roomOf: VN_ROOMS,
     center: { name: "הכיכר והכנסייה", ll: [22.335203, 103.842254] }, area: "מרכז העיר, בין הכיכר לאגם", pickId: "mountain-queen",
     why: "הציון המנורמל הכי גבוה בסאפה, בפער של 0.4 מכל השאר: 9.5 על 1,428 ביקורות, 4 כוכבים, וצוות 9.9. הוא גם הכי קרוב לכיכר. הוא עולה כפול מ־New Day, אבל $29 לאדם ללילה עם ארוחת בוקר עדיין זול." },
-  { id: "hg", name: "הא ג׳יאנג", country: "vn", from: "2026-11-06", to: "2026-11-07", people: VN, adults: 6, rooms: 3,
+  { id: "hg", name: "הא ג׳יאנג", country: "vn", from: "2026-11-06", to: "2026-11-07", people: VN, adults: 6, rooms: 3, roomOf: VN_ROOMS,
+    center: { name: "העיר הא ג׳יאנג", ll: [22.8233, 104.9836] },
     lodgingNote: "מגיעים בסביבות 23:00. רוב חברות הלופ נותנות מיטה בהוסטל שלהן בלילה שלפני היציאה. לבקש כשמזמינים." },
-  { id: "loop", name: "לופ הא ג׳יאנג", country: "vn", from: "2026-11-07", to: "2026-11-09", people: VN, adults: 6, rooms: 3,
+  { id: "loop", name: "לופ הא ג׳יאנג", country: "vn", from: "2026-11-07", to: "2026-11-09", people: VN, adults: 6, rooms: 3, roomOf: VN_ROOMS,
+    center: { name: "דונג ואן", ll: [23.2783, 105.3628] },
     lodgingNote: "בדרך כלל ההומסטיי כלול בטיול המאורגן. לוודא כשמזמינים." },
-  { id: "hoian", name: "הוי אן", country: "vn", from: "2026-11-09", to: "2026-11-13", people: VN, adults: 6, rooms: 3,
+  { id: "hoian", name: "הוי אן", country: "vn", from: "2026-11-09", to: "2026-11-13", people: VN, adults: 6, rooms: 3, roomOf: VN_ROOMS,
     center: { name: "הגשר היפני", ll: [15.8771541, 108.3260034] }, area: "ליד העיר העתיקה", pickId: "hoianese",
     why: "9.8 על יותר מ־1,000 ביקורות, וכל קטגוריה 9.6 ומעלה. ל־Lion King ציון מנורמל כמעט זהה, אבל הוא עולה 50% יותר." },
-  { id: "han2", name: "האנוי", country: "vn", from: "2026-11-13", to: "2026-11-16", people: VN, adults: 6, rooms: 3,
+  { id: "han2", name: "האנוי", country: "vn", from: "2026-11-13", to: "2026-11-16", people: VN, adults: 6, rooms: 3, roomOf: VN_ROOMS,
     center: { name: "אגם הואן קיים", ll: [21.0288313, 105.8525357] }, area: "העיר העתיקה", pickId: "ambery",
     why: "שני מלונות בראש עם 9.4: Ambery ו־Amara. Ambery עולה 40% פחות על אותו ציון, אז הוא מנצח. מיקום וצוות 9.8." },
-  { id: "cm", name: "צ׳יאנג מאי", country: "th", from: "2026-11-16", to: "2026-11-19", people: DUO, adults: 2, rooms: 1,
+  { id: "cm", name: "צ׳יאנג מאי", country: "th", from: "2026-11-16", to: "2026-11-19", people: DUO, adults: 2, rooms: 1, roomOf: ONE_ROOM,
     center: { name: "שער טה פה", ll: [18.7877625, 98.9932697] }, area: "ליד שער טה פה", pickId: "kiri",
     why: "הכי טוב בכל קטגוריה (9.4–9.8), 4 כוכבים, בריכה ו־7־Eleven ב־40 מ׳. Signature עולה חצי, אבל נמוך ב־0.6 בציון המנורמל, אז הפער גדול מדי.",
     rides: "Grab ו־Bolt עובדים. Bolt בדרך כלל קצת יותר זול." },
-  { id: "samui", name: "קו סמוי", country: "th", from: "2026-11-19", to: "2026-11-23", people: TRIO, adults: 3, rooms: 1,
+  { id: "samui", name: "קו סמוי", country: "th", from: "2026-11-19", to: "2026-11-23", people: TRIO, adults: 3, rooms: 1, roomOf: ONE_ROOM,
     center: { name: "Ark Bar", ll: [9.530268, 100.064635] }, area: "צ׳אוונג, ליד Ark Bar", pickId: "chaweng-garden",
     why: "הכי מבוסס בסמוי: 9.0 על 2,580 ביקורות. על החוף, עם 2 בריכות וארוחת בוקר, 3 דקות מ־Ark Bar בלי לגור בתוך הרעש.",
     rides: "Grab עובד בצ׳אוונג אבל יקר. Bolt לא פועל בסמוי. InDrive בדרך כלל זול יותר." },
-  { id: "phangan", name: "קו פנגן", country: "th", from: "2026-11-23", to: "2026-11-26", people: TRIO, adults: 3, rooms: 1,
+  { id: "phangan", name: "קו פנגן", country: "th", from: "2026-11-23", to: "2026-11-26", people: TRIO, adults: 3, rooms: 1, roomOf: ONE_ROOM,
     center: { name: "האד רין", ll: [9.6756244, 100.065587] }, area: "באן טאי. להאד רין רק במונית", pickId: "yangyai-lodge",
     why: "9.6 על 365 ביקורות, עם בריכה, וב־$27 לאדם ללילה. CheeVa על החוף מקבל ציון מנורמל גבוה רק ב־0.2, אבל עולה 77% יותר, אז הלודג׳ מנצח בתמורה למחיר. שימו לב: הוא לא על החוף, והמיטה השלישית היא קומותיים.",
     rides: "Grab ו־Bolt לא עובדים. סונגטאו או מונית דרך המלון, סוגרים מחיר מראש." },
-  { id: "tao", name: "קו טאו", country: "th", from: "2026-11-26", to: "2026-11-28", people: TRIO, adults: 3, rooms: 1,
+  { id: "tao", name: "קו טאו", country: "th", from: "2026-11-26", to: "2026-11-28", people: TRIO, adults: 3, rooms: 1, roomOf: ONE_ROOM,
     center: { name: "מרכז סאירי", ll: [10.0972788, 99.827833] }, area: "חוף סאירי", pickId: "simple-life",
     why: "בקו טאו המקומות עם הציונים הכי גבוהים הם הוסטלים. מבין המלונות, Simple Life מוביל: 2 בריכות, מרפסת ומיקום 9.4.",
     rides: "Grab ו־Bolt לא עובדים. טנדרים ומוניות־אופנוע במחיר קבוע." },
-  { id: "bkk", name: "בנגקוק", country: "th", from: "2026-11-28", to: "2026-11-30", people: DUO, adults: 2, rooms: 1,
+  { id: "bkk", name: "בנגקוק", country: "th", from: "2026-11-28", to: "2026-11-30", people: DUO, adults: 2, rooms: 1, roomOf: ONE_ROOM,
     center: { name: "BTS אסוק", ll: [13.7371261, 100.5602488] }, area: "אסוק, סוקומווית", pickId: "paradox",
     why: "9.0 על 1,768 ביקורות, 4 כוכבים, בריכה, חדר כושר ו־2 מסעדות, וארוחת בוקר כלולה. SQ זול ב־$47 ונמוך רק ב־0.2, אבל החיסכון קטן מדי כדי לנצח.",
     rides: "Grab ו־Bolt עובדים. ה־BTS ליד מהיר יותר בשעות העומס." },
