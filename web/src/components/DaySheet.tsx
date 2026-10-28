@@ -58,7 +58,7 @@ export function DaySheet({ api, date, onClose, onDate }: { api: AppApi; date: st
         </Section>
       )}
 
-      <Section title="ישנים הלילה ב" >
+      <Section title="איפה ישנים">
         {st ? (
           <>
             <Row onClick={() => api.showStop(st.id)}>
