@@ -138,7 +138,10 @@ export function applyOp(prev: TripState, req: OpRequest, opts: { admin?: boolean
       const i = list.findIndex((x) => x.id === req.item.id);
       if (i >= 0) list[i] = req.item;
       else list.push(req.item);
-      if (req.text) log(req.text, { kind: req.collection === "stops" ? "stop" : req.collection === "hotels" ? "hotel" : "move", id: req.item.id });
+      if (req.text) {
+        const kind = req.collection === "stops" ? "stop" : req.collection === "hotels" ? "hotel" : "move";
+        s.log.unshift({ id: uid("l"), at, by: null, claude: true, text: req.text, target: { kind, id: req.item.id } });
+      }
       break;
     }
     default:

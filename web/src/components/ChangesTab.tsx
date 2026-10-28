@@ -73,8 +73,8 @@ export function ChangesTab({ api }: { api: AppApi }) {
       ) : (
         <Section>
           {api.state.log.map((l) => (
-            <Row key={l.id} leading={<Icon name={l.by ? "person" : "changes"} size={22} className="text-label3" />}>
-              <span className="block text-[15px] leading-[20px]"><b className="font-semibold">{l.by ? personName(l.by) : "מישהו"}</b> {l.text}</span>
+            <Row key={l.id} leading={<Icon name={l.claude ? "sparkle" : l.by ? "person" : "changes"} size={22} className={l.claude ? "text-purple" : "text-label3"} />}>
+              <span className="block text-[15px] leading-[20px]"><b className="font-semibold">{l.claude ? "קלוד" : l.by ? personName(l.by) : "מישהו"}</b> {l.text}</span>
               <span className="mt-0.5 block text-[13px] text-label2 tabular">{when(l.at)}</span>
             </Row>
           ))}

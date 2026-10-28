@@ -93,6 +93,8 @@ export type LogEntry = {
   id: string;
   at: string;
   by?: PersonId | null;
+  /** Written by Claude's research, not by one of us. */
+  claude?: boolean;
   text: string;
   target?: { kind: "stop" | "hotel" | "move" | "note"; id: string };
 };
