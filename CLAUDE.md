@@ -86,6 +86,8 @@ pnpm --dir web start -p 3100
 ```
 
 - Check `npx tsc --noEmit` and `npx eslint src` in `web/`. Verify UI at 390×844 in a browser before pushing.
+- Anything with gestures (dragging people between rooms, sheet swipe-to-dismiss) must be tested with **touch** input, not a mouse: a Playwright context with `hasTouch: true, isMobile: true` and CDP `Input.dispatchTouchEvent`. A mouse test once passed while real phones scrolled and cancelled the drag. Global `touch-action` rules live in `@layer base` so `touch-none` on grips wins.
+- Saving: Blob `get()` returns a weak ETag (`W/"…"`); strip `W/` before `put(..., { ifMatch })` or every write after the first fails as a conflict.
 - Next 16 with `cacheComponents`: no `export const dynamic`; read request data under `await connection()` inside `<Suspense>`.
 - Per-phone settings use `useSyncExternalStore` over localStorage, not `setState` in an effect (lint forbids that).
 - Commit messages end with the Co-Authored-By line. Push to `main` to deploy; check with `npx vercel list vietnam-thailand-2026`.

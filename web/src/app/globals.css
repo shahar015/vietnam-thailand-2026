@@ -69,11 +69,14 @@ body {
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
-button,
-a,
-select,
-label {
-  touch-action: manipulation;
+/* In the base layer so utilities like touch-none (the drag grips) can override it. */
+@layer base {
+  button,
+  a,
+  select,
+  label {
+    touch-action: manipulation;
+  }
 }
 button:not(:disabled),
 a,

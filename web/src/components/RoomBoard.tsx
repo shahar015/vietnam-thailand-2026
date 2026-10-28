@@ -15,6 +15,18 @@ export function RoomBoard({ people, rooms, roomOf, onMove }: {
   const [drag, setDrag] = useState<{ p: PersonId; x: number; y: number; dx: number; dy: number; w: number; over: number | null } | null>(null);
   const scroller = useRef<HTMLElement | null>(null);
   const raf = useRef(0);
+  const board = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  // iOS Safari can still start a scroll under a touch-none element; cancel touchmove while a drag is on.
+  // React registers touch listeners as passive, so this one is attached by hand.
+  useEffect(() => {
+    const el = board.current;
+    if (!el) return;
+    const stop = (e: TouchEvent) => { if (dragging.current) e.preventDefault(); };
+    el.addEventListener("touchmove", stop, { passive: false });
+    return () => el.removeEventListener("touchmove", stop);
+  }, []);
 
   const groups = [...Array.from({ length: rooms }, (_, i) => i + 1), 0].map((r) => ({
     r, list: people.filter((p) => (roomOf[p] ?? 0) === r),
@@ -44,6 +56,7 @@ export function RoomBoard({ people, rooms, roomOf, onMove }: {
 
   const start = (p: PersonId, e: React.PointerEvent<HTMLElement>) => {
     e.preventDefault();
+    dragging.current = true;
     e.currentTarget.setPointerCapture(e.pointerId);
     const row = e.currentTarget.closest<HTMLElement>("[data-person]")!.getBoundingClientRect();
     scroller.current = e.currentTarget.closest<HTMLElement>(".overflow-y-auto");
@@ -55,12 +68,13 @@ export function RoomBoard({ people, rooms, roomOf, onMove }: {
     setDrag({ ...drag, x: e.clientX, y: e.clientY, over: roomAt(e.clientX, e.clientY) });
   };
   const end = () => {
+    dragging.current = false;
     if (drag && drag.over != null && drag.over !== (roomOf[drag.p] ?? 0)) onMove(drag.p, drag.over);
     setDrag(null);
   };
 
   return (
-    <div className={drag ? "select-none" : undefined}>
+    <div ref={board} className={drag ? "select-none" : undefined}>
       {groups.map(({ r, list }) => {
         const target = drag != null && drag.over === r;
         return (
