@@ -5,6 +5,7 @@
 //   node web/scripts/trip.mjs get <stops|hotels|moves> <id>  one item as JSON
 //   node web/scripts/trip.mjs stop <stopId>                  a stop with all its hotels
 //   node web/scripts/trip.mjs upsert <stops|hotels|moves> <file.json> ["log text in Hebrew"]
+//   node web/scripts/trip.mjs notes <YYYY-MM-DD> <file.json>  replace a day's notes with a JSON array of strings ([] clears)
 //
 // TRIP_URL overrides the site (default: production). RESEARCH_TOKEN comes from the
 // environment, or from the git-ignored .env.local at the repo root.
@@ -60,6 +61,16 @@ if (cmd === "queue") {
   const body = await r.json();
   if (!r.ok) { console.error(r.status, body.error); process.exit(1); }
   console.log(`saved ${a}/${item.id}, rev ${body.rev}`);
+} else if (cmd === "notes") {
+  const notes = JSON.parse(readFileSync(b, "utf8"));
+  const r = await fetch(`${BASE}/api/ops`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-research-token": token() },
+    body: JSON.stringify({ op: "setNotes", date: a, notes }),
+  });
+  const body = await r.json();
+  if (!r.ok) { console.error(r.status, body.error); process.exit(1); }
+  console.log(`saved notes for ${a}, rev ${body.rev}`);
 } else {
   console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 10).join("\n"));
   process.exit(cmd ? 1 : 0);

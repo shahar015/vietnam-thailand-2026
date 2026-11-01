@@ -161,6 +161,13 @@ export function applyOp(prev: TripState, req: OpRequest, opts: { admin?: boolean
       }
       break;
     }
+    case "setNotes": {
+      if (!opts.admin) fail("אין הרשאה");
+      const notes = req.notes.map((n) => n.trim()).filter(Boolean);
+      if (notes.length) s.notes[req.date] = notes;
+      else delete s.notes[req.date];
+      break;
+    }
     default:
       fail("פעולה לא מוכרת");
   }

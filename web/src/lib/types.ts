@@ -123,6 +123,7 @@ export type Op =
   | { op: "hideMove"; moveId: string }
   | { op: "addNote"; date: string; text: string }
   // Research updates, token-protected.
-  | { op: "upsert"; collection: "stops" | "hotels" | "moves"; item: Stop | Hotel | Move; text?: string };
+  | { op: "upsert"; collection: "stops" | "hotels" | "moves"; item: Stop | Hotel | Move; text?: string }
+  | { op: "setNotes"; date: string; notes: string[] };
 
 export type OpRequest = Op & { by?: PersonId | null };
