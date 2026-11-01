@@ -72,6 +72,6 @@ if (cmd === "queue") {
   if (!r.ok) { console.error(r.status, body.error); process.exit(1); }
   console.log(`saved notes for ${a}, rev ${body.rev}`);
 } else {
-  console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 10).join("\n"));
+  console.log(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 11).join("\n"));
   process.exit(cmd ? 1 : 0);
 }
