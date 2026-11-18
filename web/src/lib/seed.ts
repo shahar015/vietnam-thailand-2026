@@ -8,6 +8,8 @@ export const PEOPLE: { id: PersonId; name: string }[] = [
   { id: "ofir", name: "אופיר" },
   { id: "lauren", name: "לורן" },
   { id: "shir", name: "שיר" },
+  { id: "michal", name: "מיכל" },
+  { id: "yonatan", name: "יונתן" },
 ];
 export const personName = (id?: PersonId | null) => PEOPLE.find((p) => p.id === id)?.name ?? "";
 

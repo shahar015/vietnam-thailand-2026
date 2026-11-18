@@ -1,4 +1,4 @@
-export type PersonId = "shahar" | "adi" | "roni" | "yahel" | "ofir" | "lauren" | "shir";
+export type PersonId = "shahar" | "adi" | "roni" | "yahel" | "ofir" | "lauren" | "shir" | "michal" | "yonatan";
 export type Country = "vn" | "th";
 
 /** Booking's category scores, 0–10. */
