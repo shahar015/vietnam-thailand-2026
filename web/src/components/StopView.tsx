@@ -1,11 +1,11 @@
 import { personName } from "@/lib/seed";
 import { typeLabel } from "@/lib/score";
-import { DOW, bookingUrl, dates, dayNum, getThere, headcount, hotelsOf, nights, perNight, pickOf, roomsOf, scoreOf, weekday } from "@/lib/trip";
+import { DOW, bookingUrl, dates, dayMonth, getThere, isFullMoon, spanText, headcount, hotelsOf, nights, perNight, pickOf, roomsOf, scoreOf, weekday } from "@/lib/trip";
 import type { Hotel, Stop } from "@/lib/types";
 import type { AppApi } from "./TripApp";
 import { BookedMark, Button, ClaudeMark, FriendMark, GlassPill, Icon, InfoStrip, Moon, Row, Screen, Section, Tip } from "./ui";
 
-export const dateSpan = (st: Stop) => `${dayNum(st.from)} עד ${dayNum(st.to)} בנובמבר`;
+export const dateSpan = (st: Stop) => spanText(st.from, st.to);
 const names = (ps: string[]) => (ps.length < 2 ? ps.join("") : `${ps.slice(0, -1).join(", ")} ו${ps.at(-1)}`);
 
 export function StopView({ api, stopId, onBack }: { api: AppApi; stopId: string; onBack: () => void }) {
@@ -73,8 +73,8 @@ export function StopView({ api, stopId, onBack }: { api: AppApi; stopId: string;
 
         <Section title="הלילות כאן">
           {dates(stop.from, stop.to).slice(0, -1).map((d) => (
-            <Row key={d} onClick={() => api.open({ kind: "day", date: d })} leading={<Moon date={d} size={22} glow={d === "2026-11-24"} />}>
-              יום {DOW[weekday(d)]}, {dayNum(d)} בנובמבר
+            <Row key={d} onClick={() => api.open({ kind: "day", date: d })} leading={<Moon date={d} size={22} glow={isFullMoon(d)} />}>
+              יום {DOW[weekday(d)]}, {dayMonth(d)}
             </Row>
           ))}
         </Section>

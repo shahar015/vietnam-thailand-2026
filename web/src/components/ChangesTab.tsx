@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { personName } from "@/lib/seed";
-import { researchQueue } from "@/lib/trip";
+import { dayMonth, researchQueue } from "@/lib/trip";
 import type { AppApi } from "./TripApp";
 import { FriendMark, Icon, Row, Screen, Section, Segmented } from "./ui";
 
@@ -58,7 +58,7 @@ export function ChangesTab({ api }: { api: AppApi }) {
                 <Row key={m.id} onClick={() => api.open({ kind: "day", date: m.date })}>
                   <span className="block">{m.title}</span>
                   <span className="mt-0.5 flex flex-wrap items-center gap-x-3 text-[15px] text-label2 tabular">
-                    {Number(m.date.slice(8))} בנובמבר
+                    {dayMonth(m.date)}
                     {m.addedBy !== undefined && <FriendMark by={m.addedBy} />}
                   </span>
                 </Row>

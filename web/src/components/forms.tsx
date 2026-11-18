@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PEOPLE } from "@/lib/seed";
-import { TRIP_END, TRIP_START } from "@/lib/trip";
+import { TRIP_END, TRIP_START, dayMonth } from "@/lib/trip";
 import type { Country, MoveKind, PersonId } from "@/lib/types";
 import { RoomBoard } from "./RoomBoard";
 import type { AppApi } from "./TripApp";
@@ -269,7 +269,7 @@ export function AddMoveSheet({ api, date, onClose }: { api: AppApi; date: string
   const [by, setBy] = useState<PersonId | null>(api.me);
   const save = async () => { if (await api.run({ op: "addMove", date, kind, title, time, detail, by })) onClose(); };
   return (
-    <FormSheet title={`הוספה ל־${Number(date.slice(8))} בנובמבר`} onClose={onClose} onSave={save} canSave={!!title.trim()} busy={api.busy}>
+    <FormSheet title={`הוספה ל־${dayMonth(date)}`} onClose={onClose} onSave={save} canSave={!!title.trim()} busy={api.busy}>
       <Section footer="מחכה לבדיקה של קלוד עד שיבדוק שעות ומחירים.">
         <Row trailing={<Picker label="סוג" value={kind} onChange={(v) => setKind(v as MoveKind)} options={KINDS} />}>סוג</Row>
         <Field label="מה"><input className={inputCls} autoFocus value={title} placeholder="למשל שיעור בישול" onChange={(e) => setTitle(e.target.value)} /></Field>
@@ -286,7 +286,7 @@ export function AddNoteSheet({ api, date, onClose }: { api: AppApi; date: string
   const [by, setBy] = useState<PersonId | null>(api.me);
   const save = async () => { if (await api.run({ op: "addNote", date, text, by })) onClose(); };
   return (
-    <FormSheet title={`הערה ל־${Number(date.slice(8))} בנובמבר`} onClose={onClose} onSave={save} canSave={!!text.trim()} busy={api.busy}>
+    <FormSheet title={`הערה ל־${dayMonth(date)}`} onClose={onClose} onSave={save} canSave={!!text.trim()} busy={api.busy}>
       <Section>
         <textarea className={`${inputCls} block min-h-32 resize-none px-4 py-3.5 leading-[22px]`} autoFocus value={text} placeholder="מה חשוב לזכור ביום הזה?" aria-label="הערה" onChange={(e) => setText(e.target.value)} />
       </Section>

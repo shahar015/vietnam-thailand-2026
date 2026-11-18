@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "וייטנאם ותאילנד",
-  description: "המסלול, הלילות והמלונות של הטיול בנובמבר 2026",
+  description: "המסלול, הלילות והמלונות של הטיול בנובמבר ובדצמבר 2026",
   appleWebApp: { capable: true, title: "הטיול", statusBarStyle: "default" },
 };
 

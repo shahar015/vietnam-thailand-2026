@@ -19,7 +19,7 @@ export function Welcome({ me, onChoose, onDone }: { me: PersonId | null; onChoos
         <div className="flex min-h-full flex-col">
           <div className="px-4 pb-8 pt-6 text-center">
             <h2 className="text-[34px] font-bold leading-[41px] tracking-[-0.02em]">הטיול שלנו</h2>
-            <p className="mt-1 text-[17px] text-label2">וייטנאם ותאילנד, 2 עד 30 בנובמבר</p>
+            <p className="mt-1 text-[17px] text-label2">וייטנאם ותאילנד, נובמבר ודצמבר 2026</p>
           </div>
           <ul className="flex flex-col gap-6 px-3">
             {FEATURES.map((f) => (

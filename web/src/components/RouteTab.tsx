@@ -1,4 +1,4 @@
-import { DOW, TRIP_END, TRIP_START, dayNum, headcount, movesOn, nights, perNight, pickOf, scoreOf, stopForNight, visibleStops, weekday } from "@/lib/trip";
+import { DOW, TRIP_END, TRIP_START, dayMonth, dayNum, spanText, tripSpan, headcount, movesOn, nights, perNight, pickOf, scoreOf, stopForNight, visibleStops, weekday } from "@/lib/trip";
 import type { Stop } from "@/lib/types";
 import type { AppApi } from "./TripApp";
 import { TripMap } from "./TripMap";
@@ -9,7 +9,7 @@ export function RouteTab({ api }: { api: AppApi }) {
   const vn = stops.filter((s) => s.country === "vn");
   const th = stops.filter((s) => s.country === "th");
   return (
-    <Screen title="וייטנאם ותאילנד" subtitle="2 עד 30 בנובמבר" leading={api.meButton}
+    <Screen title="וייטנאם ותאילנד" subtitle={tripSpan(api.state)} leading={api.meButton}
       trailing={<GlassButton icon="plus" label="הוספת עצירה" onClick={() => api.open({ kind: "addStop" })} />}>
       <NextUp api={api} />
       <TripMap state={api.state} today={api.today ?? undefined} />
@@ -38,7 +38,7 @@ function NextUp({ api }: { api: AppApi }) {
           {before ? (days === 1 ? "מחר נוחתים בהאנוי" : `עוד ${days} ימים נוחתים בהאנוי`) : `היום ב${st?.name ?? "דרכים"}`}
         </span>
         <span className="block text-[15px] text-label2">
-          יום {DOW[weekday(date)]}, {dayNum(date)} בנובמבר{n > 0 && `, ${n === 1 ? "נסיעה אחת" : `${n} נסיעות ופעילויות`}`}
+          יום {DOW[weekday(date)]}, {dayMonth(date)}{n > 0 && `, ${n === 1 ? "נסיעה אחת" : `${n} נסיעות ופעילויות`}`}
         </span>
       </Row>
     </Section>
@@ -52,7 +52,7 @@ function StopRow({ api, stop }: { api: AppApi; stop: Stop }) {
   const n = nights(stop);
   const friend = stop.addedBy ?? pick?.addedBy;
   return (
-    <Row onClick={() => api.showStop(stop.id)} label={`${stop.name}, ${dayNum(stop.from)} עד ${dayNum(stop.to)} בנובמבר`}
+    <Row onClick={() => api.showStop(stop.id)} label={`${stop.name}, ${spanText(stop.from, stop.to)}`}
       leading={
         <span className="flex w-[46px] flex-col items-center leading-none tabular">
           <span className="ltr text-[17px] font-semibold">{dayNum(stop.from)}–{dayNum(stop.to)}</span>

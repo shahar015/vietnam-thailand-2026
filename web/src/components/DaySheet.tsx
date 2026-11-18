@@ -1,5 +1,5 @@
 import { personName } from "@/lib/seed";
-import { DOW, TRIP_END, moon, movesOn, peopleOn, pickOf, stopForNight, weekday } from "@/lib/trip";
+import { DOW, TRIP_END, dayMonth, isFullMoon, moon, movesOn, peopleOn, pickOf, stopForNight, weekday } from "@/lib/trip";
 import type { Move } from "@/lib/types";
 import { HotelLine, dateSpan } from "./StopView";
 import type { AppApi } from "./TripApp";
@@ -16,7 +16,7 @@ const KIND: Record<Move["kind"], { icon: string; color: string; name: string }> 
 
 export function DaySheet({ api, date, onClose }: { api: AppApi; date: string; onClose: () => void; onDate?: (d: string) => void }) {
   return (
-    <Sheet onClose={onClose} title={`${Number(date.slice(8))} בנובמבר`}>
+    <Sheet onClose={onClose} title={dayMonth(date)}>
       <DayDetail api={api} date={date} />
       <Section>
         <Row onClick={() => api.showDay(date)} leading={<Icon name="calendar" className="text-tint" />}>
@@ -33,7 +33,7 @@ export function DayDetail({ api, date }: { api: AppApi; date: string }) {
   const moves = movesOn(api.state, date);
   const notes = api.state.notes[date] ?? [];
   const people = peopleOn(api.state, date);
-  const full = date === "2026-11-24";
+  const full = isFullMoon(date);
   const pick = st && pickOf(api.state, st);
   const lit = Math.round(moon(date).lit * 100);
 
@@ -42,7 +42,7 @@ export function DayDetail({ api, date }: { api: AppApi; date: string }) {
       <div className="flex items-center gap-4 px-1 pb-6 pt-1">
         <Moon date={date} size={full ? 60 : 48} glow={full} />
         <div className="min-w-0">
-          <div className="text-[15px] text-label2">יום {DOW[weekday(date)]}, {Number(date.slice(8))} בנובמבר</div>
+          <div className="text-[15px] text-label2">יום {DOW[weekday(date)]}, {dayMonth(date)}</div>
           <div className="text-[28px] font-bold leading-[34px]">{full ? "פול מון בפנגן" : st?.name ?? (date === TRIP_END ? "חוזרים הביתה" : "בדרכים")}</div>
           <div className="text-[13px] text-label2 tabular">{full ? "ירח מלא" : `הירח מואר ב־${lit}%`}</div>
         </div>

@@ -2,7 +2,20 @@ import { normalize } from "./score";
 import type { Hotel, Move, PersonId, Stop, TripState } from "./types";
 
 export const TRIP_START = "2026-11-02";
-export const TRIP_END = "2026-11-30";
+/** The calendar's last day. The route itself ends where the last stop does. */
+export const TRIP_END = "2026-12-31";
+
+const MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+/** "נובמבר" for a "YYYY-MM…" date. */
+export const monthName = (iso: string) => MONTHS[Number(iso.slice(5, 7)) - 1];
+/** "24 בנובמבר". */
+export const dayMonth = (iso: string) => `${Number(iso.slice(8))} ב${monthName(iso)}`;
+/** "21 עד 24 בנובמבר", or "28 בנובמבר עד 2 בדצמבר" across months. */
+export const spanText = (from: string, to: string) =>
+  from.slice(0, 7) === to.slice(0, 7) ? `${Number(from.slice(8))} עד ${dayMonth(to)}` : `${dayMonth(from)} עד ${dayMonth(to)}`;
+/** Full moons on our dates. The party night on Phangan glows. */
+const FULL_MOONS = new Set(["2026-11-24", "2026-12-24"]);
+export const isFullMoon = (iso: string) => FULL_MOONS.has(iso);
 
 export const DOW = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 export const DOW_SHORT = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
@@ -17,10 +30,18 @@ export function dates(from = TRIP_START, to = TRIP_END): string[] {
 export const dayNum = (iso: string) => Number(iso.slice(8));
 export const weekday = (iso: string) => new Date(iso + "T12:00:00Z").getUTCDay();
 /** "2–3.11", isolated as left-to-right so it doesn't flip inside Hebrew text. */
-export const fmtRange = (from: string, to: string) => `⁦${dayNum(from)}–${dayNum(to)}.${Number(to.slice(5, 7))}⁩`;
+export const fmtRange = (from: string, to: string) =>
+  from.slice(0, 7) === to.slice(0, 7)
+    ? `⁦${dayNum(from)}–${dayNum(to)}.${Number(to.slice(5, 7))}⁩`
+    : `⁦${dayNum(from)}.${Number(from.slice(5, 7))}–${dayNum(to)}.${Number(to.slice(5, 7))}⁩`;
 export const nights = (s: Pick<Stop, "from" | "to">) => Math.round((Date.parse(s.to) - Date.parse(s.from)) / 864e5);
 
 export const visibleStops = (t: TripState) => t.stops.filter((s) => !s.hidden).sort((a, b) => a.from.localeCompare(b.from));
+/** "2 בנובמבר עד 9 בדצמבר": from the first stop to the last. */
+export const tripSpan = (t: TripState) => {
+  const st = visibleStops(t);
+  return st.length ? spanText(st[0].from, st[st.length - 1].to) : "";
+};
 
 /** The stop where we sleep on the night of this date. */
 export const stopForNight = (t: TripState, date: string) => visibleStops(t).find((s) => s.from <= date && date < s.to);
