@@ -1,6 +1,6 @@
-# Vietnam + Thailand, November 2026
+# Vietnam + Thailand, November–December 2026
 
-A shared trip planner for seven friends. Shahar (the owner) chats in English; everything the group sees is **Hebrew, right to left, phone-first**.
+A shared trip planner for a group of friends. Shahar (the owner) chats in English; everything the group sees is **Hebrew, right to left, phone-first**.
 
 - Live app: https://vietnam-thailand-2026.vercel.app
 - Repo: github.com/shahar015/vietnam-thailand-2026, branch `main`. Every push to `main` deploys to production.
@@ -8,10 +8,14 @@ A shared trip planner for seven friends. Shahar (the owner) chats in English; ev
 
 ## The trip
 
-- People: שחר `shahar`, עדי `adi`, רוני `roni`, יהל `yahel`, אופיר `ofir` (a woman), לורן `lauren` (Ofir's friend), שיר `shir`.
-- Vietnam 2–16 Nov, six of them (everyone except Shir): Hanoi 2–3 (booked: Hanoi Golden Lotus), Sapa 3–6, Ha Giang 6–7, the loop 7–9, Hoi An 9–13, Hanoi 13–16. Roni, Yahel, Ofir and Lauren stay in Vietnam after the 16th.
-- Thailand: Shahar + Adi in Chiang Mai 16–19; Shir joins on Koh Samui 19–23; Phangan 23–26 (Full Moon Party the night of Tue 24→25); Koh Tao 26–28; Shahar + Adi alone in Bangkok 28–30, flying home on the 30th.
-- International flights are booked. Domestic flights, buses and ferries are in the app as moves with prices and links.
+The live app is the source of truth for dates; this is the outline as of 18 Nov.
+
+- People: שחר `shahar`, עדי `adi`, רוני `roni`, יהל `yahel`, אופיר `ofir` (a woman), לורן `lauren` (Ofir's friend), מיכל `michal` and יונתן `yonatan` (a couple), שיר `shir`. People are listed in code (`PEOPLE` in `lib/seed.ts`, `PersonId` in `lib/types.ts`); adding someone needs a deploy.
+- Vietnam, 8 of them from Sapa on (Hanoi 2–3 was before Michal and Yonatan): Hanoi 2–3 (Golden Lotus), Sapa 4–7, Ha Giang 7–8, the loop 8–10, Tam Coc 11–13 (Tam Coc Lighthouse), Phu Quoc 13–18 (a 5-bedroom villa at Sunset Sanato), Hoi An 18–21 (the group at Chillax Old Town; Shahar alone at Emerald Riverside 18–20). The Hanoi night on 13 Nov and Da Nang were dropped.
+- Usual rooms: Michal + Yonatan, Lauren + Ofir + Adi, Shahar + Yahel + Roni. So research Vietnam stops for 1 double + 2 real triples (see the rules below).
+- Thailand, Shahar + Adi: Da Nang → Bangkok on 21 Nov (land by 16:40) → Chiang Mai at 20:30. Chiang Mai 21–24, Pai 24–28, then Shir joins: Koh Samui 28 Nov–2 Dec, Phangan 2–5 Dec, Koh Tao 5–7 Dec, Bangkok 7–9 Dec. Open after that (Phuket–Krabi or Laos); flying home 30–31 Dec, not booked yet. The Full Moon Party (24 Nov) falls in Pai; the next full moon is around 24 Dec.
+- The other six continue in Vietnam after 21 Nov; their plan isn't in the app yet.
+- Domestic flights, buses and ferries are in the app as moves with prices and links.
 - Hotel taste: a real hotel feel, not hostels; good location; mid-range, not Amari, Kalima or Marriott level. On Samui: near Ark Bar but quieter. They disliked vegan-only "Away Chiang Mai".
 
 ## How it works
@@ -58,6 +62,43 @@ Key files: `lib/types.ts` (data model and ops), `lib/score.ts` (our score), `lib
 4. For a **stop** flagged after a change of dates, people or rooms: recheck prices and availability of its hotels for the new dates and group. Upsert each hotel, re-pick by the rule, and update `why`. Then upsert the stop with `adults = people.length` and `needsResearch: false`.
 5. For a **move**: check times, prices and a booking link, fill `time`, `price`, `link`, `status`, set `needsResearch: false`, upsert.
 6. Write log texts and every user-facing string in Hebrew. Refer to the researcher as קלוד ("קלוד בדק…"), never "אני".
+
+## Hotel search rules (agreed with the owner, Nov 2026)
+
+What the group wants:
+- Real hotels and resorts with a reception. No homestays, guesthouses or hostels; no villas unless the owner asks for one.
+- Good value, so all the friends agree on the price. They like a pool and a spa, and want to be near the center or old town.
+- When friends send suggestions, check every one of them, then say whether something outside their list beats it.
+
+Rooms:
+- A couple always gets its own room. Otherwise 2 per room is preferred and 3 is fine in a bigger room. Never 4, unless it's a suite with 2 bathrooms.
+- A room counts for 3 only if it has real beds for 3: at least 3 sleeping places from single, twin, double, queen, king or bunk beds. A sofa bed, futon or "extra bed on request" doesn't count. Booking often lists a room as "Max persons: 3" when it has only a double bed or 2 singles plus a sofa bed. Read the bed line, not the occupancy number.
+- Say whether 3 people get 3 separate beds or 2 of them share a double.
+- When 3-person rooms are possible, compare the price of all-doubles with mixes that use triples (for 8 people, 4 doubles vs 1 double + 2 triples). In Hoi An on 18–21 Nov, triples were never cheaper; real triples are family rooms priced above doubles.
+
+Prices and scores:
+- Quote prices per person per night: total ÷ (people × nights). Say whether taxes and breakfast are included and whether the rate is refundable.
+- Use only `lib/score.ts` for scores, and the pick rule above to choose. When several hotels hit the cap of 10, the cheapest of them wins on value.
+- Map Booking subscores by their label text. In the page order (staff, facilities, cleanliness, comfort, value, location) it's easy to mistake staff for location.
+- Measure distance to the center or old town from the hotel's `data-atlas-latlng`.
+
+How to collect (save tokens):
+- **Booking:** a same-origin `fetch` plus `DOMParser` inside a booking.com tab. No screenshots.
+  - Search: `searchresults.en-gb.html?ss=<city>&checkin=…&checkout=…&group_adults=N&no_rooms=R&selected_currency=USD&nflt=…`. Filters: `ht_id=204` hotel, `ht_id=206` resort, `review_score=90`, `hotelfacility=433` pool, `class=4`/`5` stars. The server returns 15 cards per page, so page with `offset=0,15,30…`.
+  - Hotel page room table `#hprt-table tbody tr`:
+    - room name: `.hprt-roomtype-icon-link`
+    - beds: `.hprt-roomtype-bed`
+    - occupancy: `.hprt-occupancy-occupancy-info` ("Max persons: N")
+    - price for the whole stay: `.prco-valign-middle-helper`
+    - rooms left: `.only_x_left` / `.hprt-urgency-message`
+- **Agoda:** often cheaper than Booking, by as much as 40% (Cozy An: $47 vs $77 a room per night). Use the `hotelrate` MCP, not the browser:
+  - Pass `rooms`, `exact_dates: true` and `platforms: ["agoda"]`.
+  - Offer prices are per room per night, including taxes.
+  - Each offer's `rooms_left` says how many of that type are free, and Agoda may list a type with fewer than you asked for.
+
+  In the browser, Agoda prices load only on screen, so they cost screenshots. Friends' Agoda share links (`agoda.com/sh-app/…`) redirect to the hotel page with their dates; check that the checkout matches the stop.
+- **Airbnb:** use the `airbnb` MCP with `ignoreRobotsText: true` (the owner approved it). For ratings, read the listing page's embedded JSON (`guestSatisfactionOverall`, `reviewCount`).
+- Never book or pay. Give links, and remind the owner when a rate is non-refundable or only a few rooms are left.
 
 ## Design rules (the owner is strict about these)
 
